@@ -21,8 +21,8 @@ public class LocationController {
         return locationService.UpdateLocation(location);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getLocations(@RequestParam int page, @RequestParam int pageSize, @RequestParam int order) {
+    @GetMapping("/{page}/{page_size}/{order}")
+    public ResponseEntity<?> getLocations(@PathVariable int page, @PathVariable int pageSize, @PathVariable int order) {
         return locationService.Get(page, pageSize, order);
     }
 

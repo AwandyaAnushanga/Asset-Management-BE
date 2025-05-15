@@ -1,12 +1,9 @@
 package com.nexeyo.erp.Custodian;
 
-import com.nexeyo.erp.Asset.Asset;
 import com.nexeyo.erp.Location.Location;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Data
 @Entity
