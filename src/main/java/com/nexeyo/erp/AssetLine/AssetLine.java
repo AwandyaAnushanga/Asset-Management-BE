@@ -35,4 +35,16 @@ public class AssetLine {
     private Boolean approved;
     @Column
     private Double maintenanceCost;
+    @Column
+    private Integer location_id;
+    @Column
+    private Double initialValue;
+    @Column
+    private Double updatedValue;
+    @Column(columnDefinition = "TINYINT(1)")
+    private Boolean disposed;
+    @Column
+    private Integer disposedBy;
+    @Column
+    private LocalDateTime disposedDate;
 }

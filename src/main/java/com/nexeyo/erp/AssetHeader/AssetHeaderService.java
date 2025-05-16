@@ -53,51 +53,57 @@ public class AssetHeaderService {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Please send valid token for user ");
         }
 
-        try {
-            Integer lastNo = numberingSystem.get().getLastNo();
-            String charr = numberingSystem.get().getStartCharacter();
-            for (int i = 0; i < 5; i++) {
-                try {
-                    lastNo++;
-                    assetHeader.setAssertNo(charr + lastNo);
-                    assetHeader.setAssertNoWithoutCharacters(lastNo);
-
-                    numberingSystem.get().setLastNo(lastNo);
-                    numberingSystem.get().setLastDocumentNo(assetHeader.getId());
-                    numberingSystemRepo.save(numberingSystem.get());
-                    break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    if (i >= 4) {
-                        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Something went wrong !");
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-        }
 
         double totalValue = assetHeader.getInitialValue() * assetHeader.getQty();
         assetHeader.setTotalValue(totalValue);
         assetHeader.setCreateAt(LocalDateTime.now());
         assetHeader.setCreateBy(userOptional.get().getId());
-        assetHeader.setDisposed(false);
         assetHeader.setStatus(assetStatusOptional.get().getId());
         assetHeader.setApproved(false);
         AssetHeader savedHeader = assetHeaderRepo.save(assetHeader);
 
-        AssetLine assetLine = new AssetLine();
-        assetLine.setHeader_id(savedHeader.getId());
-        assetLine.setAssertNo(savedHeader.getAssertNo());
-        assetLine.setAssertNoWithoutCharacters(savedHeader.getAssertNoWithoutCharacters());
-        assetLine.setCustodian_id(savedHeader.getCustodian_id());
-        assetLine.setCreateAt(savedHeader.getCreateAt());
-        assetLine.setCreateBy(savedHeader.getCreateBy());
-        assetLine.setApproved(savedHeader.getApproved());
+        for(int j=0; j< savedHeader.getQty(); j++){
+
+            AssetLine assetLine = new AssetLine();
+
+            try {
+                Integer lastNo = numberingSystem.get().getLastNo();
+                String charr = numberingSystem.get().getStartCharacter();
+                for (int i = 0; i < 5; i++) {
+                    try {
+                        lastNo++;
+                        assetLine.setAssertNo(charr + lastNo);
+                        assetLine.setAssertNoWithoutCharacters(lastNo);
+
+                        numberingSystem.get().setLastNo(lastNo);
+                        numberingSystem.get().setLastDocumentNo(assetHeader.getId());
+                        numberingSystemRepo.save(numberingSystem.get());
+                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        if (i >= 4) {
+                            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Something went wrong !");
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+            }
+
+
+            assetLine.setHeader_id(savedHeader.getId());
+            assetLine.setCustodian_id(savedHeader.getCustodian_id());
+            assetLine.setCreateAt(savedHeader.getCreateAt());
+            assetLine.setCreateBy(savedHeader.getCreateBy());
+            assetLine.setApproved(savedHeader.getApproved());
+            assetLine.setLocation_id(savedHeader.getLocation_id());
+            assetLine.setInitialValue(savedHeader.getInitialValue());
 //        assetLine.setUpdateReason(savedHeader.getUpdateReason());
 //        assetLine.setUpdateAt(savedHeader.getUpdateAt());
 //        assetLine.setUpdateBy(savedHeader.getUpdateBy());
-        assetLineRepo.save(assetLine);
+            assetLineRepo.save(assetLine);
+        }
+
 
         return ResponseEntity.ok(savedHeader);
     }
@@ -132,6 +138,11 @@ public class AssetHeaderService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid status");
         }
 
+        Optional<AssetLine> assetLineOptional = assetLineRepo.findById(assetHeaderOptional.get().getAssetLine().getHeader_id());
+        if (assetLineOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Line ID!!!");
+        }
+
         assetHeader.setUpdateAt(LocalDateTime.now());
         assetHeader.setUpdateBy(userOptional.get().getId());
         assetHeader.setApproved(false);
@@ -141,8 +152,11 @@ public class AssetHeaderService {
         line.setUpdateAt(savedHeader.getUpdateAt());
         line.setUpdateBy(savedHeader.getUpdateBy());
         line.setUpdateReason(savedHeader.getUpdateReason());
-        line.setAssertNo(savedHeader.getAssertNo());
-        line.setAssertNoWithoutCharacters(savedHeader.getAssertNoWithoutCharacters());
+        line.setAssertNo(assetLineOptional.get().getAssertNo());
+        line.setAssertNoWithoutCharacters(assetLineOptional.get().getAssertNoWithoutCharacters());
+        line.setLocation_id(savedHeader.getLocation_id());
+        line.setInitialValue(savedHeader.getInitialValue());
+        line.setUpdatedValue(savedHeader.getUpdatedValue());
         line.setApproved(false);
         assetLineRepo.save(line);
 
@@ -163,6 +177,11 @@ public class AssetHeaderService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid header!!!");
         }
 
+        Optional<AssetLine> assetLineOptional = assetLineRepo.findById(assetHeaderOptional.get().getAssetLine().getHeader_id());
+        if (assetLineOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Line ID!!!");
+        }
+
         double updatedValue = assetHeader.getUpdatedValue();
         double totalValue = updatedValue * assetHeader.getQty();
 
@@ -177,8 +196,11 @@ public class AssetHeaderService {
         line.setUpdateAt(savedHeader.getUpdateAt());
         line.setUpdateBy(savedHeader.getUpdateBy());
         line.setUpdateReason(savedHeader.getUpdateReason());
-        line.setAssertNo(savedHeader.getAssertNo());
-        line.setAssertNoWithoutCharacters(savedHeader.getAssertNoWithoutCharacters());
+        line.setAssertNo(assetLineOptional.get().getAssertNo());
+        line.setAssertNoWithoutCharacters(assetLineOptional.get().getAssertNoWithoutCharacters());
+        line.setLocation_id(savedHeader.getLocation_id());
+        line.setInitialValue(savedHeader.getInitialValue());
+        line.setUpdatedValue(savedHeader.getUpdatedValue());
         line.setApproved(false);
         assetLineRepo.save(line);
 
@@ -197,6 +219,10 @@ public class AssetHeaderService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid AssetLine Id");
         }
 
+        if(assetHeaderOptional.get().getApproved()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Already Approved");
+        }
+
         assetHeaderOptional.get().setApproved(true);
         AssetHeader assetHeader = assetHeaderRepo.save(assetHeaderOptional.get());
 
@@ -204,7 +230,6 @@ public class AssetHeaderService {
         assetLineRepo.save(assetLineOptional.get());
 
         return ResponseEntity.ok(assetHeader);
-
     }
 
 }
