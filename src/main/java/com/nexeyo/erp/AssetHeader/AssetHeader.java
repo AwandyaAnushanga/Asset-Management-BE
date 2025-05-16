@@ -25,10 +25,10 @@ public class AssetHeader {
     private Integer location_id;
     @Column
     private String name;
-    @Column
-    private String assertNo;
-    @Column
-    private Integer assertNoWithoutCharacters;
+//    @Column
+//    private String assertNo;
+//    @Column
+//    private Integer assertNoWithoutCharacters;
     @Column(unique = true)
     private String assetTag;
     @Column
@@ -55,12 +55,12 @@ public class AssetHeader {
     private Double totalValue;
     @Column
     private Integer status;
-    @Column(columnDefinition = "TINYINT(1)")
-    private Boolean disposed;
-    @Column
-    private LocalDateTime disposalDate;
-    @Column
-    private String disposalDescription;
+//    @Column(columnDefinition = "TINYINT(1)")
+//    private Boolean disposed;
+//    @Column
+//    private LocalDateTime disposalDate;
+//    @Column
+//    private String disposalDescription;
     @Column(columnDefinition = "TINYINT(1)")
     private Boolean approved;
 
